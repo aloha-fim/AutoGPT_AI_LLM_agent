@@ -67,4 +67,3 @@ pub fn get_user_response(question: &str) -> String {
     // Trim whitespance and return
     return user_response.trim().to_string();
 }
-

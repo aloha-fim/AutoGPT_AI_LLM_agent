@@ -1,4 +1,4 @@
-use serde::{ Deserialize, Serialize };
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Clone)]
 pub struct Message {
@@ -13,12 +13,10 @@ pub struct ChatCompletion {
     pub temperature: f32,
 }
 
-
 #[derive(Debug, Deserialize)]
 pub struct APIMessage {
     pub content: String,
 }
-
 
 #[derive(Debug, Deserialize)]
 pub struct APIChoice {
