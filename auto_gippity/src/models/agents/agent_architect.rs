@@ -61,8 +61,7 @@ impl AgentSolutionArchitect {
 //get Basic Agent of position, state, etc.
 #[async_trait]
 impl SpecialFunctions for AgentSolutionArchitect {
-
-    fn get_attributes_from_agent(&self) -> BasicAgent {
+    fn get_attributes_from_agent(&self) -> &BasicAgent {
         &self.attributes
     }
 
@@ -123,7 +122,7 @@ impl SpecialFunctions for AgentSolutionArchitect {
                             .unwrap()
                             .iter()
                             .filter(|url| !exclude_urls.contains(&url))
-                            .clone()
+                            .cloned()
                             .collect();
                         factsheet.external_urls = Some(new_urls);
                     }
@@ -139,5 +138,18 @@ impl SpecialFunctions for AgentSolutionArchitect {
             }
         }
         Ok(())
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn tests_solution_architect() {
+        let mut agent: AgentSolutionArchitect = AgentSolutionArchitect::new();
+
+        dbg!(agent);
     }
 }

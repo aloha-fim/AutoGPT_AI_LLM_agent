@@ -1,7 +1,7 @@
 use crate::models::general::llm::Message;
 use crate::models::agent_basic::basic_traits::BasicTraits;
 
-#[derive{Debug, PartialEq}]
+#[derive(Debug, PartialEq)]
 pub enum AgentState {
     Discovery,
     Working,
@@ -9,7 +9,7 @@ pub enum AgentState {
     Finished
 }
 
-#[derive{Debug}]
+#[derive(Debug)]
 pub struct BasicAgent {
     pub objective: String,
     pub position: String,

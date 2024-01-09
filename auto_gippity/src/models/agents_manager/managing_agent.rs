@@ -3,7 +3,7 @@ use crate::models::agents::agent_traits::{ FactSheet, SpecialFunctions };
 
 #[derive(Debug)]
 pub struct ManagingAgent {
-    attributes: BasicAgent,
+    _attributes: BasicAgent,
     factsheet: FactSheet,
     agents: Vec<Box<dyn SpecialFunctions>>
 }
