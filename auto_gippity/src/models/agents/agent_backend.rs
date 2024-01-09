@@ -3,7 +3,7 @@ use crate::ai_functions::aifunc_backend::{
     print_rest_api_endpoints,
 };
 use crate::helpers::general::{
-    check_status_code, read_code_template_contents, save_api_endpoints, save_backend_code,
+    check_status_code, read_code_template_contents, save_api_endpoints, save_backend_code, read_code_main_contents
 };
 
 use crate::helpers::command_line::PrintCommand;
@@ -102,4 +102,23 @@ impl AgentBackendDeveloper {
         save_backend_code(&ai_response);
         factsheet.backend_code = Some(ai_response);
     }
+
+
+    async fn call_extract_rest_api_endpoints(&self) -> String {
+        let backend_code: String = read_exec_main_contents();
+
+        // Structure message context
+        let msg_context: String = format!("CODE_INPUT: {}", backend_code);
+
+        let ai_response: String = ai_task_request(
+            msg_context,
+            &self.attributes.position,
+            get_function_string!(print_rest_api_endpoints),
+            print_rest_api_endpoints,
+        )
+        .await;
+
+        ai_response
+    }
+
 }
