@@ -3,18 +3,19 @@ use crate::ai_functions::aifunc_backend::{
     print_rest_api_endpoints,
 };
 use crate::helpers::general::{
-    check_status_code, read_code_template_contents, save_api_endpoints, save_backend_code, read_code_main_contents
+    check_status_code, read_code_main_contents, read_code_template_contents, save_api_endpoints,
+    save_backend_code,
 };
 
 use crate::helpers::command_line::PrintCommand;
 use crate::helpers::general::ai_task_request;
-use crate::models::agent_basic::basic_agent::{ AgentState, BasicAgent };
-use crate::models::agents::agent_traits::{ FactSheet, RouteObject, SpecialFunctions };
+use crate::models::agent_basic::basic_agent::{AgentState, BasicAgent};
+use crate::models::agents::agent_traits::{FactSheet, RouteObject, SpecialFunctions};
 
 use async_trait::async_trait;
 use reqwest::Client;
 use std::fs;
-use std::process::{ Command, Stdio };
+use std::process::{Command, Stdio};
 use std::time::Duration;
 use tokio::time;
 
@@ -27,21 +28,19 @@ pub struct AgentBackendDeveloper {
 
 impl AgentBackendDeveloper {
     pub fn new() -> Self {
-
         let attributes: BasicAgent = BasicAgent {
             objective: "Develops backend code for webserver and json database".to_string(),
             position: "Backend Developer".to_string(),
             state: AgentState::Discovery,
-            memory: vec![]
+            memory: vec![],
         };
 
         Self {
             attributes,
             bug_errors: None,
-            bug_count: 0
+            bug_count: 0,
         }
     }
-
 
     async fn call_initial_backend_code(&mut self, factsheet: &mut FactSheet) {
         let code_template_str: String = read_code_template_contents();
@@ -64,7 +63,6 @@ impl AgentBackendDeveloper {
         factsheet.backend_code = Some(ai_response);
     }
 
-
     async fn call_improved_backend_code(&mut self, factsheet: &mut FactSheet) {
         let msg_context: String = format!(
             "CODE TEMPLATE: {:?} \n PROJECT DESCRIPTION: {:?} \n",
@@ -82,7 +80,6 @@ impl AgentBackendDeveloper {
         save_backend_code(&ai_response);
         factsheet.backend_code = Some(ai_response);
     }
-
 
     async fn call_fix_code_bugs(&mut self, factsheet: &mut FactSheet) {
         let msg_context: String = format!(
@@ -103,7 +100,6 @@ impl AgentBackendDeveloper {
         factsheet.backend_code = Some(ai_response);
     }
 
-
     async fn call_extract_rest_api_endpoints(&self) -> String {
         let backend_code: String = read_exec_main_contents();
 
@@ -121,4 +117,34 @@ impl AgentBackendDeveloper {
         ai_response
     }
 
+    async fn execute(
+        &mut self,
+        factsheet: &mut FactSheet,
+    )   -> Result<(), Box<dyn std::error::Error>> {
+
+        while self.attributes.state != AgentState::Finished {
+
+            match &self.attributes.state {
+                AgentState::Discovery => {
+                    self.call_initial_backend_code(factsheet).await;
+                    self.attributes.state = &AgentState::Working;
+                    continue;
+                }
+                AgentState::Working => {
+                    if self.bug_count == 0 {
+                        self.call_improved_backend_code(factsheet).await;
+                    } else {
+                        self.call_fix_code_bugs(factsheet).await;
+                    }
+                    self.attributes.state = AgentState::UnitTesting;
+                    continue;
+                }
+                AgentState::UnitTesting => {
+                    self.attributes.state = AgentState::Finished;
+                }
+                _ => {}
+            }
+        }
+        Ok(())
+    }
 }
