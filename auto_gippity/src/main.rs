@@ -24,6 +24,6 @@ async fn main() {
 
     manage_agent.execute_project().await;
 
-    dbg!(manage_agent);
+    //dbg!(manage_agent);
     //dbg!(usr_req);
 }

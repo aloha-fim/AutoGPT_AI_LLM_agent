@@ -189,7 +189,7 @@ impl SpecialFunctions for AgentBackendDeveloper {
                         self.bug_errors = Some(error_str);
 
                         // Exit if too many bugs
-                        if self.bug_count > 2 {
+                        if self.bug_count > 5 {
                             PrintCommand::Issue.print_agent_message(
                                 self.attributes.position.as_str(),
                                 "Backend Code Unit Testing: Too many bugs found in code",
@@ -331,9 +331,9 @@ mod tests {
       {
         "project_description": "build an website that fetches and tracks fitness progress with timezone information",
         "project_scope": {
-          "is_crud_required": false,
-          "is_user_login_and_logout": false,
-          "is_external_urls_required": false
+          "is_crud_required": true,
+          "is_user_login_and_logout": true,
+          "is_external_urls_required": true
         },
         "external_urls": [
             "http://worldtimeapi.org/api/timezone"

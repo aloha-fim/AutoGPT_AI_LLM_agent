@@ -1,3 +1,4 @@
+
 # AutoGPT_AI_LLM_agent
 LLM for multiple language (Rust, Python, and PHP) auto encoder
 
@@ -6,3 +7,6 @@ Evensi's business model requires heavy server calls and therefore a memory effic
 
 # 3 agents
 Make structued call to LLM and return result
+
+# With TDD
+command: cargo test tests_call_to_openai -- --nocapture

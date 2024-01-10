@@ -1,9 +1,8 @@
 use crate::models::general::llm::{APIResponse, ChatCompletion, Message};
 use dotenv::dotenv;
+use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::Client;
 use std::env;
-
-use reqwest::header::{HeaderMap, HeaderValue};
 
 // Call Large Language Model
 pub async fn call_gpt(messages: Vec<Message>) -> Result<String, Box<dyn std::error::Error + Send>> {
