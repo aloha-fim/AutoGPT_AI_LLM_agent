@@ -4,7 +4,7 @@ macro_rules! get_function_string {
         stringify!($func)
     }};
 }
-
+//enable declarative macro to agent_architect function into string
 #[macro_use]
 mod ai_functions;
 mod apis;
@@ -16,7 +16,7 @@ use models::agents_manager::managing_agent::ManagingAgent;
 
 #[tokio::main]
 async fn main() {
-    let usr_req: String = get_user_response("What website are we building today?");
+    let usr_req: String = get_user_response("Hello Fred. What AI web application are we building for Evensi?");
 
     let mut manage_agent: ManagingAgent = ManagingAgent::new(usr_req)
         .await

@@ -14,7 +14,7 @@ use std::time::Duration;
 pub struct AgentSolutionArchitect {
     attributes: BasicAgent,
 }
-
+// implementation only Solution Architect can do
 impl AgentSolutionArchitect {
     pub fn new() -> Self {
         let attributes: BasicAgent = BasicAgent {
@@ -28,17 +28,16 @@ impl AgentSolutionArchitect {
         Self { attributes }
     }
 
-    // Retrieve Project Scope
+    // Retrieve Project Scope to call LLM and provide agent_position and agent_operation attributes with function_pass
     async fn call_project_scope(&mut self, factsheet: &mut FactSheet) -> ProjectScope {
         let msg_context: String = format!("{}", factsheet.project_description);
-
+        // decode type ProjectScope in general.rs with generic T as ProjectScope
         let ai_response: ProjectScope = ai_task_request_decoded::<ProjectScope>(
             msg_context,
             &self.attributes.position,
             get_function_string!(print_project_scope),
             print_project_scope,
-        )
-        .await;
+        ).await;
 
         factsheet.project_scope = Some(ai_response.clone());
         self.attributes.update_state(AgentState::Finished);
@@ -56,8 +55,7 @@ impl AgentSolutionArchitect {
             &self.attributes.position,
             get_function_string!(print_site_urls),
             print_site_urls,
-        )
-        .await;
+        ).await;
 
         factsheet.external_urls = Some(ai_response);
         self.attributes.state = AgentState::UnitTesting;

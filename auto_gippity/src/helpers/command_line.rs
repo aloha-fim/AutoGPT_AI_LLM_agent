@@ -64,17 +64,17 @@ pub fn confirm_safe_code() -> bool {
         // Print the question in specified color
         stdout.execute(SetForegroundColor(Color::Blue)).unwrap();
         println!("");
-        print!("WARNING: You are about to run code written entirely by AI. ");
-        println!("Review your code and confirm you wish to continue.");
+        print!("Code Review with AI. ");
+        println!("Perform TDD for acceptance testing.");
 
         // Reset Color
         stdout.execute(ResetColor).unwrap();
 
         // Present Options with different colors
         stdout.execute(SetForegroundColor(Color::Green)).unwrap();
-        println!("[1] All good");
+        println!("Accept");
         stdout.execute(SetForegroundColor(Color::DarkRed)).unwrap();
-        println!("[2] Lets stop this project");
+        println!("Reject");
 
         // Reset Color
         stdout.execute(ResetColor).unwrap();

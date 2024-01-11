@@ -2,6 +2,9 @@ import_csv_data_tosql.py
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# rust
+/target
+
 # testing
 /coverage
 
