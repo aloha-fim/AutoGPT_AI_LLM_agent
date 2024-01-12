@@ -189,7 +189,7 @@ impl SpecialFunctions for AgentBackendDeveloper {
                         self.bug_errors = Some(error_str);
 
                         // Exit if too many bugs
-                        if self.bug_count > 5 {
+                        if self.bug_count > 2 {
                             PrintCommand::Issue.print_agent_message(
                                 self.attributes.position.as_str(),
                                 "Backend Code Unit Testing: Too many bugs found in code",

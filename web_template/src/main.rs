@@ -10,66 +10,45 @@ use std::fs;
 use std::io::Write;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct FitnessProgress {
+struct Event {
     id: u64,
-    user_id: u64,
-    progress: String,
-    timestamp: String,
-    timezone: String
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct User {
-    id: u64,
-    username: String,
-    password: String
+    name: String,
+    description: String,
+    date: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Database {
-    fitness_progress: HashMap<u64, FitnessProgress>,
-    users: HashMap<u64, User>
+    events: HashMap<u64, Event>,
 }
 
 impl Database {
     fn new() -> Self {
         Self {
-            fitness_progress: HashMap::new(),
-            users: HashMap::new()
+            events: HashMap::new(),
         }
     }
 
-    // CRUD DATA
-    fn insert(&mut self, progress: FitnessProgress) {
-        self.fitness_progress.insert(progress.id, progress);
+    fn insert(&mut self, event: Event) {
+        self.events.insert(event.id, event);
     }
 
-    fn get(&self, id: &u64) -> Option<&FitnessProgress> {
-        self.fitness_progress.get(id)
+    fn get(&self, id: &u64) -> Option<&Event> {
+        self.events.get(id)
     }
 
-    fn get_all(&self) -> Vec<&FitnessProgress> {
-        self.fitness_progress.values().collect()
+    fn get_all(&self) -> Vec<&Event> {
+        self.events.values().collect()
     }
 
     fn delete(&mut self, id: &u64) {
-        self.fitness_progress.remove(id);
+        self.events.remove(id);
     }
 
-    fn update(&mut self, progress: FitnessProgress) {
-        self.fitness_progress.insert(progress.id, progress);
+    fn update(&mut self, event: Event) {
+        self.events.insert(event.id, event);
     }
 
-    // USER DATA RELATED FUNCTIONS
-    fn insert_user(&mut self, user: User) {
-        self.users.insert(user.id, user);
-    }
-
-    fn get_user_by_name(&self, username: &str) -> Option<&User> {
-        self.users.values().find(|u| u.username == username)
-    }
-
-    // DATABASE SAVING
     fn save_to_file(&self) -> std::io::Result<()> {
         let data: String = serde_json::to_string(&self)?;
         let mut file: fs::File = fs::File::create("database.json")?;
@@ -88,56 +67,39 @@ struct AppState {
     db: Mutex<Database>
 }
 
-async fn create_progress(app_state: web::Data<AppState>, progress: web::Json<FitnessProgress>) -> impl Responder {
+async fn create_event(app_state: web::Data<AppState>, event: web::Json<Event>) -> impl Responder {
     let mut db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
-    db.insert(progress.into_inner());
+    db.insert(event.into_inner());
     let _ = db.save_to_file();
     HttpResponse::Ok().finish()
 }
 
-async fn read_progress(app_state: web::Data<AppState>, id: web::Path<u64>) -> impl Responder {
+async fn read_event(app_state: web::Data<AppState>, id: web::Path<u64>) -> impl Responder {
     let db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
     match db.get(&id.into_inner()) {
-        Some(progress) => HttpResponse::Ok().json(progress),
+        Some(event) => HttpResponse::Ok().json(event),
         None => HttpResponse::NotFound().finish()
     }
 }
 
-async fn read_all_progress(app_state: web::Data<AppState>) -> impl Responder {
+async fn read_all_events(app_state: web::Data<AppState>) -> impl Responder {
     let db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
-    let progress = db.get_all();
-    HttpResponse::Ok().json(progress)
+    let events = db.get_all();
+    HttpResponse::Ok().json(events)
 }
 
-async fn update_progress(app_state: web::Data<AppState>, progress: web::Json<FitnessProgress>) -> impl Responder {
+async fn update_event(app_state: web::Data<AppState>, event: web::Json<Event>) -> impl Responder {
     let mut db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
-    db.update(progress.into_inner());
+    db.update(event.into_inner());
     let _ = db.save_to_file();
     HttpResponse::Ok().finish()
 }
 
-async fn delete_progress(app_state: web::Data<AppState>, id: web::Path<u64>) -> impl Responder {
+async fn delete_event(app_state: web::Data<AppState>, id: web::Path<u64>) -> impl Responder {
     let mut db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
     db.delete(&id.into_inner());
     let _ = db.save_to_file();
     HttpResponse::Ok().finish()
-}
-
-async fn register(app_state: web::Data<AppState>, user: web::Json<User>) -> impl Responder {
-    let mut db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
-    db.insert_user(user.into_inner());
-    let _ = db.save_to_file();
-    HttpResponse::Ok().finish()
-}
-
-async fn login(app_state: web::Data<AppState>, user: web::Json<User>) -> impl Responder {
-    let db: std::sync::MutexGuard<Database> = app_state.db.lock().unwrap();
-    match db.get_user_by_name(&user.username) {
-        Some(stored_user) if stored_user.password == user.password => {
-            HttpResponse::Ok().body("Logged in!")
-        },
-        _ => HttpResponse::BadRequest().body("Invalid username or password")
-    }
 }
 
 #[actix_web::main]
@@ -166,13 +128,11 @@ async fn main() -> std::io::Result<()> {
                     .max_age(3600)
             )
             .app_data(data.clone())
-            .route("/progress", web::post().to(create_progress))
-            .route("/progress", web::get().to(read_all_progress))
-            .route("/progress", web::put().to(update_progress))
-            .route("/progress/{id}", web::get().to(read_progress))
-            .route("/progress/{id}", web::delete().to(delete_progress))
-            .route("/register", web::post().to(register))
-            .route("/login", web::post().to(login))
+            .route("/event", web::post().to(create_event))
+            .route("/event", web::get().to(read_all_events))
+            .route("/event", web::put().to(update_event))
+            .route("/event/{id}", web::get().to(read_event))
+            .route("/event/{id}", web::delete().to(delete_event))
     })
     .bind("127.0.0.1:8080")?
     .run()

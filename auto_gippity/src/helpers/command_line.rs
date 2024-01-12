@@ -24,7 +24,7 @@ impl PrintCommand {
 
         // Print the agent statement in a specific color
         stdout.execute(SetForegroundColor(Color::Green)).unwrap();
-        print!("Agent: {}: ", agent_pos);
+        print!("AI Agent: {}: ", agent_pos);
 
         // Make selected color
         stdout.execute(SetForegroundColor(statement_color)).unwrap();
